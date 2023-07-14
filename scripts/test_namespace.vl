@@ -1,0 +1,16 @@
+namespace Hello where
+  foo : Bool -> Nat
+  foo False = Z
+  foo True = S Z
+  namespace Foo where
+    foo : Bool -> Nat
+    Foo.foo False = Z
+    Foo.foo True = S Z
+
+namespace World where
+  foo : Bool -> Nat
+  World.foo False = Z
+  World.foo True = S Z
+
+okay : Nat
+okay = Hello.foo False

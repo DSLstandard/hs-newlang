@@ -1,0 +1,194 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           vl
+version:        0.0.0
+build-type:     Simple
+
+executable vl
+  main-is: Main.hs
+  other-modules:
+      Utils
+      Utils.Lens
+      Utils.Map
+      Utils.Pretty
+      Utils.Set
+      Vl.Algo
+      Vl.Check
+      Vl.Common
+      Vl.Defs
+      Vl.Error
+      Vl.Expr
+      Vl.Interpret
+      Vl.Jesper
+      Vl.Lens
+      Vl.Name
+      Vl.Parser
+      Vl.Process
+      Vl.SourceStore
+      Vl.TT
+      Vl.Unify
+      Vl.Value
+      Paths_vl
+  hs-source-dirs:
+      src
+      app
+  default-extensions:
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DeriveFoldable
+      DeriveFunctor
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      RankNTypes
+      DuplicateRecordFields
+      StandaloneDeriving
+      ImportQualifiedPost
+      TupleSections
+      AllowAmbiguousTypes
+      UndecidableInstances
+      EmptyCase
+      ViewPatterns
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      OverloadedStrings
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      DefaultSignatures
+      RecordWildCards
+      NamedFieldPuns
+      NoImplicitPrelude
+      PatternSynonyms
+      QuasiQuotes
+      ScopedTypeVariables
+      TemplateHaskell
+      TemplateHaskell
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      DeriveGeneric
+  ghc-options: -threaded -Wno-deprecations
+  build-depends:
+      QuickCheck
+    , base
+    , containers
+    , data-default
+    , diagnose
+    , extra
+    , fused-effects
+    , lens
+    , megaparsec
+    , monoid-subclasses
+    , neat-interpolation
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , random
+    , relude
+    , scientific
+    , template-haskell
+    , time
+    , unordered-containers
+    , witherable
+  default-language: Haskell2010
+
+test-suite vl-test
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  other-modules:
+      Utils
+      Utils.Lens
+      Utils.Map
+      Utils.Pretty
+      Utils.Set
+      Vl.Algo
+      Vl.Check
+      Vl.Common
+      Vl.Defs
+      Vl.Error
+      Vl.Expr
+      Vl.Interpret
+      Vl.Jesper
+      Vl.Lens
+      Vl.Name
+      Vl.Parser
+      Vl.Process
+      Vl.SourceStore
+      Vl.TT
+      Vl.Unify
+      Vl.Value
+      Paths_vl
+  hs-source-dirs:
+      src
+      test
+  default-extensions:
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DeriveFoldable
+      DeriveFunctor
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      RankNTypes
+      DuplicateRecordFields
+      StandaloneDeriving
+      ImportQualifiedPost
+      TupleSections
+      AllowAmbiguousTypes
+      UndecidableInstances
+      EmptyCase
+      ViewPatterns
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      OverloadedStrings
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      DefaultSignatures
+      RecordWildCards
+      NamedFieldPuns
+      NoImplicitPrelude
+      PatternSynonyms
+      QuasiQuotes
+      ScopedTypeVariables
+      TemplateHaskell
+      TemplateHaskell
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      DeriveGeneric
+  ghc-options: -threaded -Wno-deprecations
+  build-depends:
+      QuickCheck
+    , base
+    , containers
+    , data-default
+    , diagnose
+    , extra
+    , fused-effects
+    , lens
+    , megaparsec
+    , monoid-subclasses
+    , neat-interpolation
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , random
+    , relude
+    , scientific
+    , tasty
+    , tasty-hunit
+    , template-haskell
+    , time
+    , unordered-containers
+    , witherable
+  default-language: Haskell2010

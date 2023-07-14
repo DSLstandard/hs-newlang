@@ -1,0 +1,13 @@
+
+data Void : Type where
+
+data Unit : Type where
+  MkUnit : Unit
+
+data Nat : Type where
+  Z : Nat
+  S : (n : Nat) -> Nat
+
+data Bool : Type where
+  False : Bool
+  True : Bool

@@ -1,0 +1,81 @@
+name: vl
+
+default-extensions:
+- BlockArguments
+- ConstraintKinds
+- DataKinds
+- DeriveFoldable
+- DeriveFunctor
+- DeriveTraversable
+- DerivingStrategies
+- DerivingVia
+- RankNTypes
+- DuplicateRecordFields
+- StandaloneDeriving
+- ImportQualifiedPost
+- TupleSections
+- AllowAmbiguousTypes
+- UndecidableInstances
+- EmptyCase
+- ViewPatterns
+- FlexibleContexts
+- FlexibleInstances
+- FunctionalDependencies
+- OverloadedStrings
+- GADTs
+- GeneralizedNewtypeDeriving
+- LambdaCase
+- MultiParamTypeClasses
+- DefaultSignatures
+- RecordWildCards
+- NamedFieldPuns
+- NoImplicitPrelude
+- PatternSynonyms
+- QuasiQuotes
+- ScopedTypeVariables
+- TemplateHaskell
+- TemplateHaskell
+- TypeApplications
+- TypeFamilies
+- TypeOperators
+- DeriveGeneric
+
+dependencies:
+- base
+- containers
+- data-default
+- diagnose
+- extra
+- fused-effects
+- lens
+- megaparsec
+- monoid-subclasses
+- unordered-containers
+- neat-interpolation
+- time
+- prettyprinter
+- prettyprinter-ansi-terminal
+- relude
+- scientific
+- random
+- template-haskell
+- witherable
+- QuickCheck
+
+ghc-options: -threaded -Wno-deprecations
+
+source-dirs:
+- src
+
+executables:
+  vl:
+    source-dirs: app
+    main: Main.hs
+
+tests:
+  vl-test:
+    source-dirs: test
+    main: Test.hs
+    dependencies:
+      - tasty
+      - tasty-hunit

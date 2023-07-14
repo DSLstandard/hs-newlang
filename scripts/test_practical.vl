@@ -1,0 +1,408 @@
+the : (a : _) -> (x : a) -> a
+the a x = x
+
+const : {a, b : _} -> (x : a) -> (y : b) -> a
+const x y = x
+
+id : {a : _} -> (x : a) -> a
+id x = x
+
+(.) : {a, b, c : _} -> (g : b -> c) -> (f : a -> b) -> a -> c
+infixr 9 .
+(.) g f x = g (f x)
+
+($) : {a, b : _} -> (a -> b) -> a -> b
+infixr 0 $
+($) f x = f x
+
+data Maybe : (a : Type) -> Type where
+  None : {a : _} -> Maybe a
+  Some : {a : _} -> (x : a) -> Maybe a
+
+not : Bool -> Bool
+not False = True
+not True = False
+
+and : Bool -> Bool -> Bool
+and True True = True
+and x y = False
+
+or : Bool -> Bool -> Bool
+or False False = False
+or x y = True
+
+data Vect : Nat -> Type -> Type where
+  VNil : {a : _} -> Vect Z a
+  VCons : {a, n : _} -> (x : a) -> (xs : Vect n a) -> Vect (S n) a
+
+data Equal : {a : _} -> (x : a) -> (y : a) -> Type where
+  Refl : {a : _} -> {x : a} -> Equal x x
+
+trans : {a : _} -> {x, y, z : a} -> Equal x y -> Equal y z -> Equal x z
+trans Refl Refl = Refl
+
+sym : {a : _} -> {x, y : a} -> Equal x y -> Equal y x
+sym Refl = Refl
+
+vhead : {a, n : _} -> (xs : Vect (S n) a) -> a
+vhead (VCons x xs) = x
+
+plus : (x : Nat) -> (y : Nat) -> Nat
+plus (S x) y = S (plus x y)
+plus Z y = y
+
+interface Additive a where
+  (+) : (x : a) -> (y : a) -> a
+infixl 6 +
+
+Additive_Nat : Additive Nat
+Additive_Nat = MkAdditive plus
+instance Additive_Nat
+
+mul : (x : Nat) -> (y : Nat) -> Nat
+mul Z y = Z
+mul (S x) y = plus y (mul x y)
+
+(*) : (x : Nat) -> (y : Nat) -> Nat
+(*) = mul
+
+infixl 7 *
+
+struct Pair a b where
+  constructor MkPair
+  fst : a
+  snd : b
+
+struct DPair a (b : a -> Type) where
+  constructor ADPair
+  dfst : a
+  dsnd : b dfst
+
+interface Functor f where
+  map : {a, b : _} -> (func : a -> b) -> f a -> f b
+
+interface Applicative f where
+  [functor : Functor f]
+  pure : {a : _} -> (x : a) -> f a
+  // ap : {a, b : _} -> (func : f (a -> b)) -> f a -> f b
+instance functor
+
+interface Monad m where
+  [applicative : Applicative m]
+  (>>=) : {a, b : _} -> m a -> (a -> m b) -> m b
+infixl 1 >>=
+
+mapMaybe : {a, b : _} -> (func : a -> b) -> (input : Maybe a) -> Maybe b
+mapMaybe f None = None
+mapMaybe f (Some x) = Some (f x)
+
+Functor_Maybe : Functor Maybe
+Functor_Maybe = MkFunctor \{a} {b} => mapMaybe
+instance Functor_Maybe
+
+Applicative_Maybe : Applicative Maybe
+Applicative_Maybe = MkApplicative (\{a} => Some)
+instance Applicative_Maybe
+
+two : Nat
+two = S (S Z)
+
+three : Nat
+three = S (S (S Z))
+
+data Handle : Type where
+  [external]
+
+data World : Type where
+  [external]
+
+data IORes : (a : Type) -> Type where
+  MkIORes : {a : _} -> (world : World) -> (result : a) -> IORes a
+
+PrimIO : (a : Type) -> Type
+PrimIO a = (world : World) -> IORes a
+
+data IO : (a : Type) -> Type where
+  MkIO : {a : _} -> (action : PrimIO a) -> IO a
+
+unIO : {a : _} -> IO a -> PrimIO a
+unIO {a} (MkIO act) = act
+
+bindIO : {a, b : _} -> IO a -> (a -> IO b) -> IO b
+bindIO ioa aiob =
+  MkIO \world =>
+    let MkIORes world' result = unIO ioa world
+      in unIO (aiob result) world'
+
+pureIO : {a : _} -> (x : a) -> IO a
+pureIO x = MkIO \world => MkIORes world x
+
+mapIO : {a, b : _} -> (func : a -> b) -> IO a -> IO b
+mapIO func ioa = bindIO ioa (\x => pureIO (func x))
+
+Functor_IO : Functor IO
+Functor_IO = MkFunctor \{a} {b} => mapIO
+instance Functor_IO
+
+Applicative_IO : Applicative IO
+Applicative_IO = MkApplicative \{a} => pureIO
+instance Applicative_IO
+
+Monad_IO : Monad IO
+Monad_IO = MkMonad \{a} {b} => bindIO
+instance Monad_IO
+
+foreverIO : {a : _} -> IO a -> IO Unit
+foreverIO ioa = bindIO ioa \x => foreverIO ioa
+
+forever : {m : _} -> [monad : Monad m] -> {a : _} -> m a -> m Unit
+forever ma = ma >>= \x => forever ma
+
+data IORef : (a : Type) -> Type where
+  [external]
+
+data Addr : Type where
+  [external]
+
+data Ptr : (a : Type) -> Type where
+  MkPtr : {a : Type} -> Addr -> Ptr a
+
+// external
+newIORef : {a : Type} -> a -> IO (IORef a)
+// external
+writeIORef : {a : Type} -> IORef a -> (new : a) -> IO Unit
+// external
+readIORef : {a : Type} -> IORef a -> IO a
+
+modify : IORef String -> IO Unit
+modify ref = do
+  writeIORef {String} ref "HELLO WORLD"
+
+data u8 : Type where [external]
+data u16 : Type where [external]
+data u32 : Type where [external]
+data i8 : Type where [external]
+data i16 : Type where [external]
+data i32 : Type where [external]
+
+// external
+int_to_u8  : Int -> u8
+int_to_u16 : Int -> u16
+int_to_u32 : Int -> u32
+int_to_i8  : Int -> i8
+int_to_i16 : Int -> i16
+int_to_i32 : Int -> i32
+put_u8 : Handle -> u8 -> IO Unit
+stdout : Handle
+stderr : Handle
+stdin : Handle
+
+// external
+int_eq  : Int -> Int -> Bool
+int_ne  : Int -> Int -> Bool
+int_le  : Int -> Int -> Bool
+int_lt  : Int -> Int -> Bool
+int_ge  : Int -> Int -> Bool
+int_gt  : Int -> Int -> Bool
+int_add : Int -> Int -> Int
+int_sub : Int -> Int -> Int
+int_mul : Int -> Int -> Int
+int_div : Int -> Int -> Int
+int_mod : Int -> Int -> Int
+random_int : (low : Int) -> (high : Int) -> IO Int
+int_to_str : Int -> String
+put_str : Handle -> String -> IO Unit
+putl_str : Handle -> String -> IO Unit
+getl_str : Handle -> IO String
+str_add : String -> String -> String
+parse_int : String -> Maybe Int
+flush : Handle -> IO Unit
+
+interface Eq a where
+  constructor MkEq
+  (==) : a -> a -> Bool
+
+Eq_Int : Eq Int
+Eq_Int = MkEq int_eq
+instance Eq_Int
+
+(/=) : {a : _} -> [eq : Eq a] -> a -> a -> Bool
+x /= y = not $ x == y
+
+data Ordering : Type where
+  LT : Ordering
+  EQ : Ordering
+  GT : Ordering
+
+ordering_eq : Ordering -> Ordering -> Bool
+ordering_eq LT LT = True
+ordering_eq EQ EQ = True
+ordering_eq GT GT = True
+ordering_eq x y = False
+
+Eq_Ordering : Eq Ordering
+Eq_Ordering = MkEq ordering_eq
+instance Eq_Ordering
+
+interface Ord a where
+  constructor MkOrd
+  [eq : Eq a]
+  compare : a -> a -> Ordering
+instance eq
+
+(<) : {a : _} -> [ord : Ord a] -> a -> a -> Bool
+infix 4 <
+x < y = compare x y == LT
+
+(>) : {a : _} -> [ord : Ord a] -> a -> a -> Bool
+infix 4 >
+x > y = compare x y == GT
+
+(<=) : {a : _} -> [ord : Ord a] -> a -> a -> Bool
+infix 4 <=
+x <= y = not (x > y)
+
+(>=) : {a : _} -> [ord : Ord a] -> a -> a -> Bool
+infix 4 >=
+x >= y = not (x < y)
+
+// (<=) : Int -> Int -> Bool
+// infix 4 <=
+// (<=) = int_ge
+
+// (>=) : Int -> Int -> Bool
+// infix 4 >=
+// (>=) = int_le
+
+compare_int : Int -> Int -> Ordering
+compare_int x y =
+  case int_lt x y of
+    True => LT
+    False =>
+      case int_eq x y of
+        True => EQ
+        False => GT
+
+Ord_Int : Ord Int
+Ord_Int = MkOrd compare_int
+instance Ord_Int
+
+Additive_Int : Additive Int
+Additive_Int = MkAdditive int_add
+instance Additive_Int
+
+interface Show a where
+  show : a -> String
+
+show_ordering : Ordering -> String
+show_ordering EQ = "EQ"
+show_ordering GT = "GT"
+show_ordering LT = "LT"
+
+Show_Ordering : Show Ordering
+Show_Ordering = MkShow show_ordering
+instance Show_Ordering
+
+new : {a : _} -> a -> IO (IORef a)
+new = newIORef
+
+set : {a : _} -> IORef a -> a -> IO Unit
+set = writeIORef
+
+get : {a : _} -> IORef a -> IO a
+get = readIORef
+
+update : {a : _} -> IORef a -> (a -> a) -> IO Unit
+update var f = get var >>= set var . f
+
+repeat_while : (body : IO Bool) -> IO Unit
+repeat_while body = do
+  r <- body
+  case r of
+    False => pure MkUnit
+    True => repeat_while body
+
+undefined : {a : Type} -> a
+
+interface Semigroup a where
+  (<>) : (x : a) -> (y : a) -> a
+infixr 6 <>
+
+interface Monoid a where
+  [semigroup : Semigroup a]
+  neutral : a
+
+Semigroup_String : Semigroup String
+Semigroup_String = MkSemigroup str_add
+instance Semigroup_String
+
+Monoid_String : Monoid String
+Monoid_String = MkMonoid ""
+instance Monoid_String
+
+Semigroup_Int : Semigroup Int
+Semigroup_Int = MkSemigroup int_add
+instance Semigroup_Int
+
+show_bool : Bool -> String
+show_bool False = "False"
+show_bool True = "True"
+
+Show_Bool : Show Bool
+Show_Bool = MkShow show_bool
+instance Show_Bool
+
+// show_maybe : {a : _} -> [show : Show a] -> Maybe a -> String
+// show_maybe None = "None"
+// show_maybe (Some x) = "Some " <> show x
+// 
+// Show_Maybe : {a : _} -> [show : Show a] -> Show (Maybe a)
+// Show_Maybe = MkShow show_maybe
+// instance Show_Maybe
+
+// case int_lt x y of
+//   True => LT
+//   False => case int_eq x y of
+//     True => EQ
+//     False => GT
+
+guessingGame : IO Unit
+guessingGame = do
+  putl_str stdout "Guess the number"
+  ans <- random_int 0 100
+  repeat_while do
+    put_str stdout "Guess it: "
+    flush stdout
+    r <- getl_str stdin
+    // putl_str stdout (show r)
+    case parse_int r of
+      None => do
+        putl_str stdout "Invalid input, please try again"
+        pure True
+      Some input => do
+        case compare input ans of
+          EQ => do
+            putl_str stdout "Correct"
+            pure False
+          LT => do
+            putl_str stdout "Too small"
+            pure True
+          GT => do
+            putl_str stdout "Too big"
+            pure True
+
+counting : Int -> IO Unit
+counting x = do
+  putl_str stdout (int_to_str x)
+  putl_str stdout (int_to_str x)
+  putl_str stdout (int_to_str x)
+  putl_str stdout (int_to_str x)
+  counting (x + 1)
+
+namespace Hello where
+  foo : Nat
+  foo = Z
+
+main : IO Unit
+main = do
+  putl_str stdout "what"

@@ -1,0 +1,19 @@
+cradle:
+  stack:
+    - path: "./app/"
+      component: "vl:exe:vl"
+
+    - path: "./src/"
+      component: "vl:exe:vl"
+
+    - path: "./package.yaml"
+      component: "vl:exe:vl"
+
+    - path: "./test/"
+      component: "vl:test:vl-test"
+
+    - path: "./src/"
+      component: "vl:test:vl-test"
+
+    - path: "./package.yaml"
+      component: "vl:test:vl-test"

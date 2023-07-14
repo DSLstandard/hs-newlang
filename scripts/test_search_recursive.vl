@@ -1,0 +1,28 @@
+interface Show a where
+  show : a -> String
+
+
+data Bool : Type where
+  False : Bool
+  True : Bool
+
+show_bool : Bool -> String
+show_bool False = "False"
+show_bool True = "True"
+
+Show_Bool : Show Bool
+Show_Bool = MkShow show_bool
+instance Show_Bool
+
+
+data Maybe : (a : Type) -> Type where
+  None : {a : _} -> Maybe a
+  Some : {a : _} -> (x : a) -> Maybe a
+
+show_maybe : {a : _} -> [show : Show a] -> Maybe a -> String
+show_maybe None = "<null>"
+show_maybe (Some x) = show x
+
+Show_Maybe : {a : _} -> [show : Show a] -> Show (Maybe a)
+Show_Maybe = MkShow show_maybe
+instance Show_Maybe
